@@ -34,3 +34,15 @@ resource "azurerm_network_security_group" "nsg" {
     destination_address_prefix = "*"
   }
 }
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "test" {
+  name     = "rg-terraform-test"
+  location = "East US"
+}
+
+output "resource_group_name" {
+  value = azurerm_resource_group.test.name
+}
