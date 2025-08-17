@@ -17,6 +17,9 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
+    - name: Install jq
+      run: sudo apt-get install -y jq
+
     - name: Parse Azure credentials
       id: parse_creds
       run: |
@@ -34,3 +37,6 @@ jobs:
 
     - name: Show Public IP
       run: terraform output public_ip
+      
+    - name: Install jq
+      run: sudo apt-get install -y jq
