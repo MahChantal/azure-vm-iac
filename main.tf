@@ -6,8 +6,8 @@ module "network" {
 
 module "vm" {
   source              = "./modules/vm"
-  resource_group_name = var.resource_group_name
   location            = var.location
+  resource_group_name = module.network.resource_group_name
   subnet_id           = module.network.subnet_id
   nsg_id              = module.network.nsg_id
 }

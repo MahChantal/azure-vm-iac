@@ -1,5 +1,5 @@
 resource "azurerm_network_interface" "nic" {
-  name                = "tibs-nic"
+  name                = "vm-nic"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -7,31 +7,22 @@ resource "azurerm_network_interface" "nic" {
     name                          = "internal"
     subnet_id                     = var.subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip.id
   }
-
-  network_security_group_id = var.nsg_id
-}
-
-resource "azurerm_public_ip" "pip" {
-  name                = "tibs-pip"
-  location            = var.location
-  resource_group_name = var.resource_group_name
-  allocation_method   = "Dynamic"
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "tibs-vm"
-  resource_group_name = var.resource_group_name
+  name                = "my-vm"
   location            = var.location
+  resource_group_name = var.resource_group_name
   size                = "Standard_B1s"
-  admin_username      = "azureuser"
-  network_interface_ids = [azurerm_network_interface.nic.id]
-  disable_password_authentication = true
+  admin_username      = "mahadmin"
 
-  admin_ssh_key {
-    username   = "azureuser"
-    public_key = file("${path.module}/id_rsa.pub")
+  network_interface_ids = [azurerm_network_interface.nic.id]
+
+  os_disk {
+    name                 = "vm-osdisk"
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {
@@ -41,8 +32,15 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+  admin_ssh_key {
+    username   = "mahadmin"
+    public_key = file("~/.ssh/id_rsa.pub")
   }
+
+  disable_password_authentication = true
+}
+
+resource "azurerm_network_interface_security_group_association" "nic_nsg" {
+  network_interface_id      = azurerm_network_interface.nic.id
+  network_security_group_id = var.nsg_id
 }
